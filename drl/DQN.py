@@ -20,14 +20,24 @@ class DQN(nn.Module):
         )
         self.block3 = nn.Sequential(
             nn.Conv2d(42, 80, kernel_size=5, stride=1),
+            nn.MaxPool2d(2, 2),
             nn.BatchNorm2d(80),
+            nn.ReLU(),
+        )
+
+        self.block4 = nn.Sequential(
+            nn.Conv2d(80, 160, kernel_size=3, stride=1),
+            nn.MaxPool2d(2, 2),
+            nn.BatchNorm2d(160),
             nn.ReLU(),
         )
         self.head = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(17600, 256),
+            nn.Linear(640, 256),
             nn.ReLU(),
-            nn.Linear(256, outputs),
+            nn.Linear(256, 48),
+            nn.ReLU(),
+            nn.Linear(48, outputs),
         )
 
     def forward(self, x):
@@ -35,5 +45,5 @@ class DQN(nn.Module):
         a = self.block1(_a)
         b = self.block2(torch.cat([_a, a], 1))
         c = self.block3(torch.cat([_a, a, b], 1))
-        d = self.head(c)
-        return d
+        d = self.block4(c)
+        return self.head(d)
