@@ -1,8 +1,4 @@
-from threading import Thread, Condition
-from drl.Environment import *
-from src.reinforcement_ai import reinforcement_ai
-
+from util.gym import app
 
 if __name__ == '__main__':
-    cv = Condition()
-    reinforcement_ai(cv)
+    app.run(host='localhost', port=5555)

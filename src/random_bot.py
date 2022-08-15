@@ -8,7 +8,7 @@ PLAYER_ID = "player2-xxx"
 
 sio = socketio.Client()
 
-server_util(sio, PLAYER_ID)
+server_util(sio, PLAYER_ID, verbose=False)
 
 
 def move(step):

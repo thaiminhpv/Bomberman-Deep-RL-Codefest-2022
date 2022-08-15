@@ -14,28 +14,28 @@ from drl.Environment import Environment
 mapping = {0: '1', 1: '2', 2: '3', 3: '4', 4: 'b', 5: 'x'}
 
 
-def reinforcement_ai(cv: Condition):
+def reinforcement_ai(cv: Condition, player_id: str):
     sio = socketio.Client()
 
-    log = server_util(sio, PLAYER_ID, verbose=False)
+    log = server_util(sio, player_id, verbose=False)
 
     def move(step: int):
         step = mapping[step]
-        log(f'Player = {PLAYER_ID} - Dir = {step}')
+        log(f'Player = {player_id} - Dir = {step}')
         sio.emit('drive player', {"direction": step})
 
-    env = Environment(cv=cv, move=move)
+    env = Environment(cv=cv, move=move, player_id=player_id)
 
     @sio.on('drive player')
     def on_drive_player(data):
-        log(f'{PLAYER_ID} drive player successfully')
+        log(f'{player_id} drive player successfully')
         # pprint(data)
 
     @sio.on('ticktack player')
     def on_ticktack_player(data):
         global started
         started = True
-        log(f'{PLAYER_ID} received ticktack player')
+        log(f'{player_id} received ticktack player')
         with cv:
             env.tick(data)
             cv.notify()

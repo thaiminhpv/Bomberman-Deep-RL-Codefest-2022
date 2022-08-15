@@ -32,9 +32,10 @@ class Environment(metaclass=Singleton):
     An Singleton Environment that have tick(data) function call from producer, and have step() function call from consumer
     """
 
-    def __init__(self, cv: Condition = None, move=lambda x: print('move function not defined')):
+    def __init__(self, cv: Condition = None, move=lambda x: print('move function not defined'), player_id: str = 'player1-xxx'):
         self.QUEUE = deque()
         self.condition = cv
+        self.player_id = player_id
         if move is not None:
             self.move = move
 

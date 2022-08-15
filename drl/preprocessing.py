@@ -103,7 +103,7 @@ def compute_reward(data):
     humanSaved_diff = info['humanSaved'] - previous['humanSaved']
 
     # compute reward
-    reward = score_diff * 3 + lives_diff * 30 + pill_diff + power_diff * 15 + quarantine_diff * -30 + humanCured_diff * 3 + humanSaved_diff * 3 - 0.5
+    reward = score_diff * 3 + lives_diff * 30 + pill_diff + power_diff * 15 + quarantine_diff * -10 + humanCured_diff * 3 + humanSaved_diff * 3 - 0.5
 
     # print different if != 0
     if lives_diff >= -1:
