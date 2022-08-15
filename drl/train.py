@@ -34,7 +34,7 @@ GAMMA = 0.999
 EPS_START = 0.95
 EPS_END = 0.05
 EPS_DECAY = 600
-TARGET_UPDATE = 100
+TARGET_UPDATE = 500
 
 if EVAL_MODE:
     resume = True
@@ -42,7 +42,7 @@ if EVAL_MODE:
 
 screen_height = 14
 screen_width = 26
-depth = 11
+depth = 13
 n_actions = 6
 
 steps_done = 0
@@ -83,7 +83,7 @@ def select_action(state):
             # found, so we pick action with the larger expected reward
             temp = policy_net(state[None, ...])
             confident = F.softmax(temp, dim=1).max(1).values.detach().item()
-            print(f'{mapping[temp.argmax().item()]} : {confident * 100:.3f}%')
+            print(f'{mapping[temp.argmax().item()]} : {confident * 100:.3f}%', end='\t')
             return temp.argmax().view(1, 1)
             # return policy_net(state[None, ...]).max(1)[1].view(1, 1)
     else:
@@ -92,6 +92,7 @@ def select_action(state):
 
 def optimize_model():
     if len(memory) < BATCH_SIZE:
+        print()
         return
     transitions = memory.sample(BATCH_SIZE)
     batch = Transition(*zip(*transitions))
@@ -107,7 +108,7 @@ def optimize_model():
 
     q_values = policy_net(state_batch).gather(1, action_batch[:, None])[:, 0]
     loss = criterion(q_values, y_targets)
-    print('loss: ', loss.detach().item())
+    print('- loss: ', loss.detach().item())
 
     # Optimize the model
     optimizer.zero_grad()
