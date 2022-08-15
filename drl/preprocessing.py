@@ -1,4 +1,5 @@
 import numpy as np
+import time
 import matplotlib.pyplot as plt
 import pandas as pd
 import json
@@ -102,15 +103,25 @@ def compute_reward(data):
     humanSaved_diff = info['humanSaved'] - previous['humanSaved']
 
     # compute reward
-    reward = score_diff * 3 + lives_diff * 100 + pill_diff + power_diff * 20 + quarantine_diff * -50 + humanCured_diff * 10 + humanSaved_diff * 10 - 1
+    reward = score_diff * 3 + lives_diff * 30 + pill_diff + power_diff * 15 + quarantine_diff * -30 + humanCured_diff * 3 + humanSaved_diff * 3 - 0.5
 
     # print different if != 0
-    for key, value in previous.items():
-        if value != info[key]:
-            print(
-                f"{key}: {value} -> {info[key]} : {'+' if info[key] - value > 0 else ''}{info[key] - value} : REWARD: {reward}")
+    if lives_diff >= -1:
+        for key, value in previous.items():
+            if value != info[key]:
+                print(
+                    f"{key}: {value} -> {info[key]} : {'+' if info[key] - value > 0 else ''}{info[key] - value} : REWARD: {reward}")
 
     previous['score'], previous['lives'], previous['pill'], previous['power'], previous['quarantine'], previous[
         'humanCured'], previous['humanSaved'] = info['score'], info['lives'], info['pill'], info['power'], info[
         'quarantine'], info['humanCured'], info['humanSaved']
+
+    if quarantine_diff == 1:
+        print(f"Got to quarantine")
+        time.sleep(14)
+        print(f"Got out of quarantine")
+
+    if lives_diff < -1:
+        return 1
     return reward
+

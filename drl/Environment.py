@@ -67,16 +67,3 @@ class Environment(metaclass=Singleton):
             while self.wait_for_tick():
                 self.condition.wait()
             return self.pop()
-
-
-# def consume(cv):
-#     with cv:
-#         while not check_item_available():
-#             cv.wait()
-#         print('We got an available item', pop())
-#
-#
-# def produce(cv):
-#     with cv:
-#         push('an item to be processed')
-#         cv.notify()
