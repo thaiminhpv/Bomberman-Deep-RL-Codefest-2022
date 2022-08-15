@@ -5,6 +5,7 @@ from pprint import pprint, pformat
 import random
 from src.config import *
 from src.server_util import server_util
+from drl.train import train_one_episode
 
 PLAYER_ID = "player1-xxx"
 
@@ -31,13 +32,8 @@ def on_drive_player(data):
 @sio.on('ticktack player')
 def on_ticktack_player(data):
     print(f'{PLAYER_ID} received ticktack player')
-    data = pformat(data, indent=4)
-    # dump data to file
-    with open('data.json', 'w') as f:
-        f.write(str(data))
-    sys.exit(0)
-    pprint(data)
-    move('1234b')
+    movement = train_one_episode(data)
+    move(movement)
 
 
 sio.connect(SERVER_URL)

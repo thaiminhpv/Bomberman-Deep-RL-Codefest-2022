@@ -14,22 +14,11 @@ import torch.nn.functional as F
 import torchvision.transforms as T
 
 from drl.DQN import DQN
-
-Transition = namedtuple('Transition', ('state', 'action', 'next_state', 'reward'))
-
-
-class ReplayMemory(object):
-    def __init__(self, capacity):
-        self.memory = deque([], maxlen=capacity)
-
-    def push(self, *args):
-        """Saves a transition."""
-        self.memory.append(Transition(*args))
-
-    def sample(self, batch_size):
-        return random.sample(self.memory, batch_size)
-
-    def __len__(self):
-        return len(self.memory)
+from drl.ReplayMemory import *
+from drl.preprocessing import *
 
 
+def train_one_episode(data) -> str:
+    processed_data = process_raw_input(data)
+
+    return '1234bx'
