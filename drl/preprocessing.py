@@ -6,7 +6,7 @@ import json
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from src.config import PLAYER_ID
+from drl.Environment import Environment
 
 
 def process_raw_input(data) -> torch.Tensor:
@@ -49,7 +49,7 @@ def process_raw_input(data) -> torch.Tensor:
                     map_bombs_power[_row, bomb['col']] = remainTime
                     map_bombs_power[bomb['row'], _col] = remainTime
 
-    player_id = PLAYER_ID  # data['player_id']
+    player_id = Environment().player_id  # data['player_id']
     map_enemy = torch.zeros(data['map_info']['size']['rows'], data['map_info']['size']['cols'])
     for i in range(len(data['map_info']['players'])):
         if data['map_info']['players'][i]['id'] != player_id:
@@ -84,7 +84,7 @@ previous['score'], previous['lives'], previous['pill'], previous['power'], previ
 
 def compute_reward(data):
     info = None
-    player_id = PLAYER_ID
+    player_id = Environment().player_id
     for i in range(len(data['map_info']['players'])):
         if data['map_info']['players'][i]['id'] == player_id:
             player_id = data['map_info']['players'][i]['id']

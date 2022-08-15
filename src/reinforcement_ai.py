@@ -1,20 +1,20 @@
 started = False
 
-import sys
-from threading import Thread, Condition
-from drl.train import train
+from threading import Condition
+from threading import Thread
 
 import socketio
-from pprint import pprint, pformat
-import random
-from src.config import *
-from src.server_util import server_util
+
 from drl.Environment import Environment
+from drl.train import train
+from src.config import SERVER_URL
+from src.server_util import server_util
 
 mapping = {0: '1', 1: '2', 2: '3', 3: '4', 4: 'b', 5: 'x'}
 
 
-def reinforcement_ai(cv: Condition, player_id: str):
+def reinforcement_ai(player_id: str):
+    cv = Condition()
     sio = socketio.Client()
 
     log = server_util(sio, player_id, verbose=False)
@@ -39,11 +39,6 @@ def reinforcement_ai(cv: Condition, player_id: str):
         with cv:
             env.tick(data)
             cv.notify()
-        # movement = train_one_episode(data, move_function=move)
-        # move(movement)
-
-        # if len(data['map_info']['bombs']) > 0:
-        #     pprint(data['map_info']['bombs'][0]['remainTime'])
 
     Thread(target=train).start()
     sio.connect(SERVER_URL)
