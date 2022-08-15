@@ -5,9 +5,10 @@ import json
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from src.config import PLAYER_ID
 
 
-def process_raw_input(data):
+def process_raw_input(data) -> torch.Tensor:
     mapp = data['map_info']['map']
     mapp = torch.tensor(mapp)
     mapp[mapp == 6] = 3
@@ -26,6 +27,7 @@ def process_raw_input(data):
     one_hot_map_spoils = F.one_hot(map_spoils, num_classes=3)
 
     # %%
+    MAX_REMAINING_TIME = 2000
     bombs = data['map_info']['bombs']
     map_bombs_power = torch.zeros(data['map_info']['size']['rows'], data['map_info']['size']['cols'])
     for i in range(len(data['map_info']['players'])):
@@ -33,18 +35,20 @@ def process_raw_input(data):
         player_id = data['map_info']['players'][i]['id']
         for bomb in bombs:
             if bomb['playerId'] == player_id:
-                remainTime = int(bomb['remainTime'])
+                remainTime = (MAX_REMAINING_TIME - int(bomb['remainTime'])) / 2000
                 # map_bombs_power[bomb['row'], bomb['col']] = remainTime
-                print(power)
-                for p in range(power + 3):
-                    map_bombs_power[bomb['row'] + p, bomb['col']] = remainTime
-                    map_bombs_power[bomb['row'], bomb['col'] + p] = remainTime
+                # print(power)
+                for p in range(power + 1):
+                    _row = min(bomb['row'] + p, data['map_info']['size']['rows'] - 1)
+                    _col = min(bomb['col'] + p, data['map_info']['size']['cols'] - 1)
+                    map_bombs_power[_row, bomb['col']] = remainTime
+                    map_bombs_power[bomb['row'], _col] = remainTime
                     _row = max(0, bomb['row'] - p)
                     _col = max(0, bomb['col'] - p)
                     map_bombs_power[_row, bomb['col']] = remainTime
                     map_bombs_power[bomb['row'], _col] = remainTime
 
-    player_id = data['player_id']
+    player_id = PLAYER_ID  # data['player_id']
     map_enemy = torch.zeros(data['map_info']['size']['rows'], data['map_info']['size']['cols'])
     for i in range(len(data['map_info']['players'])):
         if data['map_info']['players'][i]['id'] != player_id:
@@ -58,14 +62,55 @@ def process_raw_input(data):
             map_current_player[data['map_info']['players'][i]['currentPosition']['row'],
                                data['map_info']['players'][i]['currentPosition']['col']] = 1
     # concat everything
-    print('mapp.shape: ', mapp.shape)
-    print('one_hot_map_spoils.shape: ', one_hot_map_spoils.shape)
-    print('map_bombs_power.shape: ', map_bombs_power.shape)
-    print('map_enemy.shape: ', map_enemy.shape)
-    print('map_current_player.shape: ', map_current_player.shape)
+    # print('mapp.shape: ', mapp.shape)
+    # print('one_hot_map_spoils.shape: ', one_hot_map_spoils.shape)
+    # print('map_bombs_power.shape: ', map_bombs_power.shape)
+    # print('map_enemy.shape: ', map_enemy.shape)
+    # print('map_current_player.shape: ', map_current_player.shape)
     # %%
     map_all = torch.cat(
         (mapp, one_hot_map_spoils, map_bombs_power[..., None], map_enemy[..., None], map_current_player[..., None]),
         dim=2)
 
-    return map_all
+    # [14, 26, 11]
+    return map_all.float()
+
+
+previous = {}
+previous['score'], previous['lives'], previous['pill'], previous['power'], previous['quarantine'], previous[
+    'humanCured'], previous['humanSaved'] = 0, 1000, 0, 1, 0, 0, 0
+
+
+def compute_reward(data):
+    info = None
+    player_id = PLAYER_ID
+    for i in range(len(data['map_info']['players'])):
+        if data['map_info']['players'][i]['id'] == player_id:
+            player_id = data['map_info']['players'][i]['id']
+            info = data['map_info']['players'][i]
+            break
+    else:
+        raise Exception('player_id not found')
+
+    # compute difference between previous and current
+    score_diff = info['score'] - previous['score']
+    lives_diff = info['lives'] - previous['lives']
+    pill_diff = info['pill'] - previous['pill']
+    power_diff = info['power'] - previous['power']
+    quarantine_diff = info['quarantine'] - previous['quarantine']
+    humanCured_diff = info['humanCured'] - previous['humanCured']
+    humanSaved_diff = info['humanSaved'] - previous['humanSaved']
+
+    # compute reward
+    reward = score_diff * 3 + lives_diff * 100 + pill_diff + power_diff * 20 + quarantine_diff * -50 + humanCured_diff * 10 + humanSaved_diff * 10 - 1
+
+    # print different if != 0
+    for key, value in previous.items():
+        if value != info[key]:
+            print(
+                f"{key}: {value} -> {info[key]} : {'+' if info[key] - value > 0 else ''}{info[key] - value} : REWARD: {reward}")
+
+    previous['score'], previous['lives'], previous['pill'], previous['power'], previous['quarantine'], previous[
+        'humanCured'], previous['humanSaved'] = info['score'], info['lives'], info['pill'], info['power'], info[
+        'quarantine'], info['humanCured'], info['humanSaved']
+    return reward

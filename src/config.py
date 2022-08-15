@@ -1,2 +1,3 @@
 SERVER_URL = "https://localhost.jsclub.me/"
-GAME_ID = "7412d989-29ec-48ab-bc5c-de4a669d0ab3"
+GAME_ID = "03a3173f-6712-4d67-a46b-15ce491c546b"
+PLAYER_ID = "player1-xxx"

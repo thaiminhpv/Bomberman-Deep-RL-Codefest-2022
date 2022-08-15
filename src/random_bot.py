@@ -21,13 +21,13 @@ def move(step):
 @sio.on('drive player')
 def on_drive_player(data):
     print(f'{PLAYER_ID} drive player successfully')
-    pprint(data)
+    # pprint(data)
 
 
 @sio.on('ticktack player')
 def on_ticktack_player(data):
     print(f'{PLAYER_ID} received ticktack player')
-    pprint(data)
+    # pprint(data)
     move('1234b')
 
 
