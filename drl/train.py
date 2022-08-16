@@ -1,33 +1,15 @@
-import math
 import os
-import time
 # import asyncio
-import random
-from threading import Condition
 from typing import Tuple
 
 import matplotlib.pyplot as plt
-import numpy as np
-# import matplotlib
-# import matplotlib.pyplot as plt
-from collections import namedtuple, deque
-from itertools import count
-from PIL import Image
 
-import torch
-import torch.nn as nn
-import torch.optim as optim
-import torch.nn.functional as F
-import torchvision.transforms as T
-
-from drl.DQN import DQN
 from drl.ReplayMemory import *
 from drl.preprocessing import *
-from drl.Environment import *
 from drl.util import *
 
 EVAL_MODE = False
-resume = True
+resume = False
 
 RANDOM_SEED = 420
 
@@ -44,7 +26,7 @@ if EVAL_MODE:
 
 screen_height = 14
 screen_width = 26
-depth = 13
+depth = 5
 n_actions = 6
 
 steps_done = 0
@@ -81,6 +63,7 @@ def select_action(state) -> Tuple[torch.Tensor, float]:
     steps_done += 1
     if sample > eps_threshold:
         with torch.no_grad():
+            policy_net.eval()
             # t.max(1) will return largest column value of each row.
             # second column on max result is index of where max element was
             # found, so we pick action with the larger expected reward
@@ -94,6 +77,7 @@ def select_action(state) -> Tuple[torch.Tensor, float]:
 
 
 def optimize_model():
+    policy_net.train()
     transitions = memory.sample(BATCH_SIZE)
     batch = Transition(*zip(*transitions))
 
@@ -182,7 +166,11 @@ def train(env: Environment):
             if counter % TARGET_UPDATE == 0:
                 print('update target network')
                 # target_net.load_state_dict(policy_net.state_dict())
-                target_net.load_state_dict(policy_net.state_dict())
+                # perform soft update
+                TAU = 0.001
+                for target_param, policy_param in zip(target_net.parameters(), policy_net.parameters()):
+                    target_param.data.copy_(target_param.data * (1.0 - TAU) + policy_param.data * TAU)
+
                 # save_model
                 torch.save(policy_net.state_dict(), '../model/dqn.pth')
 
