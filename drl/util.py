@@ -37,8 +37,8 @@ def plot_durations(episode_durations):
 
 
 def plot_loss(losses, confidents, time_steps: int):
-    logger = SummaryWriter('runs/drl-bot-Codefest')
-    INTERVAL = 40
+    # logger = SummaryWriter('runs/drl-bot-Codefest')
+    INTERVAL = 2
     print('plot loss')
 
     _losses = np.array(losses)
@@ -51,8 +51,8 @@ def plot_loss(losses, confidents, time_steps: int):
     mean_losses = mean_losses[mean_confidents > 0]
 
     # add to tensorboard
-    logger.add_scalar('loss', mean_losses.mean(), time_steps)
-    logger.add_scalar('confident', mean_confidents.mean(), time_steps)
+    # logger.add_scalar('loss', mean_losses.mean(), time_steps)
+    # logger.add_scalar('confident', mean_confidents.mean(), time_steps)
 
     # plot loss and confidents on the same figure with different colors and their own scale
     fig, ax = plt.subplots()

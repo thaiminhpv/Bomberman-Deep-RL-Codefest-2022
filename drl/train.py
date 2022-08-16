@@ -121,12 +121,10 @@ def train(env: Environment):
 
     action = 2
     state = process_raw_input(env.step(action)).to(device)  # [14, 26, 11]
-    counter = 0
     losses = []
     confidents = []
 
     for t in count():
-        counter += 1
         # Select and perform an action
         _, confident = select_action(state)
         action = _[0].item()
@@ -152,14 +150,14 @@ def train(env: Environment):
             confidents.append(confident)
 
             # Update the target network, copying all weights and biases in DQN
-            if counter % TARGET_UPDATE == 0:
+            if t % TARGET_UPDATE == 0:
                 # print('update target network')
                 # target_net.load_state_dict(policy_net.state_dict())
                 # perform soft update
                 for target_param, policy_param in zip(target_net.parameters(), policy_net.parameters()):
                     target_param.data.copy_(target_param.data * (1.0 - TAU) + policy_param.data * TAU)
 
-            if counter % 100 == 0:
+            if t % 10 == 0:
                 print('saving model...')
                 # save_model
                 torch.save(policy_net.state_dict(), MODEL_PATH)
