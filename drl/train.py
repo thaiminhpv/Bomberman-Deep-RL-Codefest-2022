@@ -27,7 +27,7 @@ from drl.Environment import *
 from drl.util import *
 
 EVAL_MODE = False
-resume = False
+resume = True
 
 RANDOM_SEED = 420
 
@@ -60,10 +60,10 @@ target_net.load_state_dict(policy_net.state_dict())
 target_net.eval()
 
 if resume:
-    if os.path.isfile('./model/dqn.pth'):
+    if os.path.isfile('../model/dqn.pth'):
         print('load model')
-        policy_net.load_state_dict(torch.load('./model/dqn.pth'))
-        target_net.load_state_dict(torch.load('./model/dqn.pth'))
+        policy_net.load_state_dict(torch.load('../model/dqn.pth'))
+        target_net.load_state_dict(torch.load('../model/dqn.pth'))
     else:
         print('no model')
 
@@ -120,7 +120,7 @@ def optimize_model():
 
 
 def plot_loss(losses, confidents, time_steps: int):
-    INTERVAL = 60
+    INTERVAL = 40
     print('plot loss')
 
     _losses = np.array(losses)
@@ -145,7 +145,9 @@ def plot_loss(losses, confidents, time_steps: int):
 
 
 def train(env: Environment):
+    print('start train')
     time.sleep(3)
+    print('start train2')
 
     action = 2
     state = process_raw_input(env.step(action)).to(device)  # [14, 26, 11]

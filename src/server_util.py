@@ -8,7 +8,9 @@ def server_util(sio, player_id, verbose=True):
     @sio.event
     def connect():
         log('connection established')
+        print('3. server responded connected successfully - ready to emit join game')
         sio.emit('join game', {'game_id': get_game_id(), 'player_id': player_id})
+        print('4. done emitted join game')
         log(f'{player_id} connected to game {get_game_id()}')
 
     @sio.event

@@ -31,8 +31,11 @@ class Hero(ABC):
         @self.sio.on('join game')
         def on_join_game(data):
             self.log(f'{player_id} join game successfully')
+            print('5. server call back responded joined game successfully - ready to emit drive player')
             pprint(data)
             self.running = True
+            print('\trunning = ', self.running)
+            print('6. running variable set')
             self.on_join_game(data)
 
     def move(self, step):
@@ -42,6 +45,10 @@ class Hero(ABC):
             step = Hero.MAPPING[step]
         else:
             raise TypeError('step must be str or int')
+        print(f'{self.player_id} move: {step}')
+        print('\trunning = ', self.running)
+        print('self.sio.connected = ', self.sio.connected)
+        print('self: ', self)
         assert self.running, 'game is not running'
         self.log(f'Player = {self.player_id} - Dir = {step}')
         self.sio.emit('drive player', {"direction": step})
@@ -56,10 +63,13 @@ class Hero(ABC):
 
     @abstractmethod
     def on_join_game(self, data):
+        raise NotImplementedError('on_join_game must be implemented')
         pass
 
     def run(self):
+        print(f'1. {self.player_id} ready connect to server')
         self.sio.connect(SERVER_URL)
+        print(f'2. {self.player_id} initiated connection to server')
 
     def __del__(self):
         self.sio.disconnect()

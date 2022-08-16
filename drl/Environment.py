@@ -17,29 +17,50 @@ from drl.DQN import DQN
 # import asyncio
 from collections import deque
 
-
-class Singleton(type):
-    _instances = {}
-
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
+from src.Hero import Hero
 
 
-class Environment(metaclass=Singleton):
+# class Singleton(type):
+#     _instances = {}
+#
+#     def __call__(cls, *args, **kwargs):
+#         if cls not in cls._instances:
+#             cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+#         return cls._instances[cls]
+
+
+class Environment:
     """
     An Singleton Environment that have tick(data) function call from producer, and have step() function call from consumer
     """
+    instance = None
 
-    def __init__(self, cv: Condition = None, move=lambda x: print('move function not defined'), player_id: str = 'player1-xxx'):
+    @classmethod
+    def get_player_id(cls):
+        return Environment.instance.player_id
+
+    def __init__(self, cv: Condition = None, hero: Hero = None, player_id: str = 'player1-xxx'):
+        print('Environment.__init__, this should be called only once')
+        Environment.instance = self
         self.QUEUE = deque()
-        self.condition = cv
         self.player_id = player_id
-        if move is not None:
-            def _move(action: int):
-                move(action)
-            self.move = _move
+        self.condition = cv
+        if hero is not None:
+            self.hero = hero
+
+    def __del__(self):
+        print('Environment.__del__, this should be called only once')
+        self.__clear()
+        del self.hero
+
+    def __move(self, action: int):
+        print('Environment.__move, action:', action)
+        print('Environment.__move, self.hero:', self.hero)
+        print('Environment.__move, self.hero.player_id:', self.hero.player_id)
+        print('Environment.__move, self.player_id:', self.player_id)
+        print('Environment.__move, self.condition:', self.condition)
+        print('Environment.__move, self.hero.running:', self.hero.running)
+        self.hero.move(action)
 
     def __clear(self):
         self.QUEUE.clear()
@@ -65,7 +86,7 @@ class Environment(metaclass=Singleton):
 
     def step(self, action: int):
         self.__clear()
-        self.move(action)
+        self.__move(action)
         with self.condition:
             while self.wait_for_tick():
                 self.condition.wait()

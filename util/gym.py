@@ -23,11 +23,15 @@ def run_agents():
         if player1.running:
             print('killing player1')
             player1.__del__()
+            del player1
     if player2:
-        print('player1 is running, kill it')
+        print('player2 is running, kill it')
         if player2.running:
             print('killing player2')
             player2.__del__()
+            del player2
+
+    time.sleep(1)
 
     player1 = RandomBot('player1-xxx', verbose=False)
     player2 = ReinforcementAI('player2-xxx', verbose=False)
