@@ -1,9 +1,8 @@
 import os
-# import asyncio
+from itertools import count
 from typing import Tuple
 
-import matplotlib.pyplot as plt
-
+from torch.utils.tensorboard import SummaryWriter
 from drl.ReplayMemory import *
 from drl.preprocessing import *
 from drl.util import *
@@ -111,6 +110,7 @@ def optimize_model():
 
 
 def plot_loss(losses, confidents, time_steps: int):
+    logger = SummaryWriter('runs/drl-bot-Codefest')
     INTERVAL = 40
     print('plot loss')
 
@@ -122,6 +122,10 @@ def plot_loss(losses, confidents, time_steps: int):
     # filter out 0 values of confidents
     mean_confidents = mean_confidents[mean_confidents > 0]
     mean_losses = mean_losses[mean_confidents > 0]
+
+    # add to tensorboard
+    logger.add_scalar('loss', mean_losses.mean(), time_steps)
+    logger.add_scalar('confident', mean_confidents.mean(), time_steps)
 
     # plot loss and confidents on the same figure with different colors and their own scale
     fig, ax = plt.subplots()
