@@ -64,4 +64,4 @@ def plot_loss(losses, confidents, time_steps: int):
     ax2.set_ylabel('confident')
     plt.legend()
     plt.show()
-    logger.close()
+    # logger.close()
