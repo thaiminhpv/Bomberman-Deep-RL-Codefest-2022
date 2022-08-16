@@ -1,19 +1,28 @@
 # Singleton Flask app that set variable GAME_ID  listening on 5555
+import os
+import sys
 import time
 from threading import Thread, active_count
+
 import flask
-from flask import Flask, render_template, request, jsonify
+from flask import request
 from flask_cors import CORS, cross_origin
+
+# append src, util, drl to sys.path
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.append(parent_dir)
+sys.path.append(parent_dir + '/src')
+sys.path.append(parent_dir + '/util')
+sys.path.append(parent_dir + '/drl')
+print(sys.path)
+
 from src.reinforcement_ai import ReinforcementAI
 from src.random_bot import RandomBot
 
-import sys
-sys.path.append('../')
-sys.path.append('../src')
-sys.path.append('../util')
-
 player1 = None
 player2 = None
+
 
 def run_agents():
     """
