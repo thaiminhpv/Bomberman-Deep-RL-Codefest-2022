@@ -1,8 +1,8 @@
 import random
-
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
+from torch.utils.tensorboard import SummaryWriter
 
 
 def seed_everything(seed):
@@ -34,3 +34,33 @@ def plot_durations(episode_durations):
     # if is_ipython:
     #     display.clear_output(wait=True)
     #     display.display(plt.gcf())
+
+
+def plot_loss(losses, confidents, time_steps: int):
+    logger = SummaryWriter('runs/drl-bot-Codefest')
+    INTERVAL = 40
+    print('plot loss')
+
+    _losses = np.array(losses)
+    mean_losses = np.stack(np.split(_losses[_losses.shape[0] % INTERVAL:], INTERVAL)).mean(axis=0)
+    _confidents = np.array(confidents)
+    mean_confidents = np.stack(np.split(_confidents[_confidents.shape[0] % INTERVAL:], INTERVAL)).mean(axis=0)
+
+    # filter out 0 values of confidents
+    mean_confidents = mean_confidents[mean_confidents > 0]
+    mean_losses = mean_losses[mean_confidents > 0]
+
+    # add to tensorboard
+    logger.add_scalar('loss', mean_losses.mean(), time_steps)
+    logger.add_scalar('confident', mean_confidents.mean(), time_steps)
+
+    # plot loss and confidents on the same figure with different colors and their own scale
+    fig, ax = plt.subplots()
+    ax.plot(mean_losses, color='red', label='loss')
+    ax.set_xlabel('time steps')
+    ax.set_ylabel('loss')
+    ax2 = ax.twinx()
+    ax2.plot(mean_confidents, color='blue', label='confident')
+    ax2.set_ylabel('confident')
+    plt.legend()
+    plt.show()

@@ -1,11 +1,17 @@
+import math
 import os
+import random
+import time
 from itertools import count
 from typing import Tuple
 
-from torch.utils.tensorboard import SummaryWriter
-from drl.ReplayMemory import *
-from drl.preprocessing import *
-from drl.util import *
+from torch import optim
+
+from drl.DQN import *
+from drl.Environment import Environment
+from drl.ReplayMemory import ReplayMemory, Transition
+from drl.preprocessing import process_raw_input, compute_reward
+from drl.util import seed_everything, plot_loss
 
 EVAL_MODE = False
 RESUME = True
@@ -17,7 +23,8 @@ GAMMA = 0.999
 EPS_START = 0.95
 EPS_END = 0.05
 EPS_DECAY = 600
-TARGET_UPDATE = 300
+TARGET_UPDATE = 5
+TAU = 0.001
 
 if EVAL_MODE:
     RESUME = True
@@ -109,36 +116,6 @@ def optimize_model():
     return loss.item()
 
 
-def plot_loss(losses, confidents, time_steps: int):
-    logger = SummaryWriter('runs/drl-bot-Codefest')
-    INTERVAL = 40
-    print('plot loss')
-
-    _losses = np.array(losses)
-    mean_losses = np.stack(np.split(_losses[_losses.shape[0] % INTERVAL:], INTERVAL)).mean(axis=0)
-    _confidents = np.array(confidents)
-    mean_confidents = np.stack(np.split(_confidents[_confidents.shape[0] % INTERVAL:], INTERVAL)).mean(axis=0)
-
-    # filter out 0 values of confidents
-    mean_confidents = mean_confidents[mean_confidents > 0]
-    mean_losses = mean_losses[mean_confidents > 0]
-
-    # add to tensorboard
-    logger.add_scalar('loss', mean_losses.mean(), time_steps)
-    logger.add_scalar('confident', mean_confidents.mean(), time_steps)
-
-    # plot loss and confidents on the same figure with different colors and their own scale
-    fig, ax = plt.subplots()
-    ax.plot(mean_losses, color='red', label='loss')
-    ax.set_xlabel('time steps')
-    ax.set_ylabel('loss')
-    ax2 = ax.twinx()
-    ax2.plot(mean_confidents, color='blue', label='confident')
-    ax2.set_ylabel('confident')
-    plt.legend()
-    plt.show()
-
-
 def train(env: Environment):
     time.sleep(3)
 
@@ -167,22 +144,23 @@ def train(env: Environment):
         if not EVAL_MODE:
             if len(memory) < BATCH_SIZE:
                 print('--- not enough sample to recall, observing... ---')
-            else:
-                loss = optimize_model()
+                continue
 
-                losses.append(loss)
-                confidents.append(confident)
+            loss = optimize_model()
+
+            losses.append(loss)
+            confidents.append(confident)
 
             # Update the target network, copying all weights and biases in DQN
             if counter % TARGET_UPDATE == 0:
-                print('update target network')
+                # print('update target network')
                 # target_net.load_state_dict(policy_net.state_dict())
                 # perform soft update
-                TAU = 0.001
                 for target_param, policy_param in zip(target_net.parameters(), policy_net.parameters()):
                     target_param.data.copy_(target_param.data * (1.0 - TAU) + policy_param.data * TAU)
 
+            if counter % 100 == 0:
+                print('saving model...')
                 # save_model
                 torch.save(policy_net.state_dict(), MODEL_PATH)
-
                 plot_loss(losses, confidents, t)
