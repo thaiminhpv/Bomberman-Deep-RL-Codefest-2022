@@ -39,6 +39,7 @@ def GYM_CLIENT():
             print('game_id is empty')
 
     sio.connect(SERVER)
+    sio.wait()
 
 
 if __name__ == '__main__':
