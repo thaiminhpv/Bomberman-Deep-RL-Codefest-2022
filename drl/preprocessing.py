@@ -43,7 +43,8 @@ def process_raw_input(data) -> torch.Tensor:
         player_id = data['map_info']['players'][i]['id']
         for bomb in bombs:
             if bomb['playerId'] == player_id:
-                remainTime = ((MAX_REMAINING_TIME - int(bomb['remainTime'])) / 2000) * -40
+                # remainTime = ((MAX_REMAINING_TIME - int(bomb['remainTime'])) / 2000) * -40
+                remainTime = -40
                 # map_bombs_power[bomb['row'], bomb['col']] = remainTime
                 # print(power)
                 for p in range(power + 1):
@@ -72,7 +73,11 @@ def process_raw_input(data) -> torch.Tensor:
     for i in range(len(data['map_info']['players'])):
         if data['map_info']['players'][i]['id'] == player_id:
             # print('found current player ' + data['map_info']['players'][i]['id'])
-            mapp[data['map_info']['players'][i]['currentPosition']['row'], data['map_info']['players'][i]['currentPosition']['col']] = 15
+            # if there was bomb on current player position, then it is -15
+            if mapp[data['map_info']['players'][i]['currentPosition']['row'], data['map_info']['players'][i]['currentPosition']['col']] == -40:
+                mapp[data['map_info']['players'][i]['currentPosition']['row'], data['map_info']['players'][i]['currentPosition']['col']] = -100
+            else:
+                mapp[data['map_info']['players'][i]['currentPosition']['row'], data['map_info']['players'][i]['currentPosition']['col']] = 15
             # add 1 to left, right, up, down
             # map_current_player[data['map_info']['players'][i]['currentPosition']['row'], data['map_info']['players'][i]['currentPosition']['col'] - 1] = 1
             # map_current_player[data['map_info']['players'][i]['currentPosition']['row'], data['map_info']['players'][i]['currentPosition']['col'] + 1] = 1
