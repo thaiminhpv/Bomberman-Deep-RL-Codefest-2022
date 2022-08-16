@@ -81,10 +81,10 @@ def optimize_model():
     transitions = memory.sample(BATCH_SIZE)
     batch = Transition(*zip(*transitions))
 
-    state_batch = torch.stack(batch.state)
-    action_batch = torch.tensor(batch.action)
-    reward_batch = torch.tensor(batch.reward)
-    next_state_batch = torch.stack(batch.next_state)
+    state_batch = torch.stack(batch.state).to(device)
+    action_batch = torch.tensor(batch.action).to(device)
+    reward_batch = torch.tensor(batch.reward).to(device)
+    next_state_batch = torch.stack(batch.next_state).to(device)
 
     max_qsa = target_net(next_state_batch).max(dim=-1).values  # [BATCH_SIZE,]
     # Compute the expected Q values
