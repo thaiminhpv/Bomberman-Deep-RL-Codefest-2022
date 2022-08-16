@@ -43,7 +43,7 @@ def process_raw_input(data) -> torch.Tensor:
         player_id = data['map_info']['players'][i]['id']
         for bomb in bombs:
             if bomb['playerId'] == player_id:
-                remainTime = ((MAX_REMAINING_TIME - int(bomb['remainTime'])) / 2000) * -30
+                remainTime = ((MAX_REMAINING_TIME - int(bomb['remainTime'])) / 2000) * -40
                 # map_bombs_power[bomb['row'], bomb['col']] = remainTime
                 # print(power)
                 for p in range(power + 1):
@@ -62,7 +62,7 @@ def process_raw_input(data) -> torch.Tensor:
     for i in range(len(data['map_info']['players'])):
         if data['map_info']['players'][i]['id'] != player_id:
             # print('found enemy ' + data['map_info']['players'][i]['id'])
-            mapp[data['map_info']['players'][i]['currentPosition']['row'], data['map_info']['players'][i]['currentPosition']['col']] = -40
+            mapp[data['map_info']['players'][i]['currentPosition']['row'], data['map_info']['players'][i]['currentPosition']['col']] = -15
             # add 1 to left, right, up, down
             # map_enemy[data['map_info']['players'][i]['currentPosition']['row'], data['map_info']['players'][i]['currentPosition']['col'] - 1] = 1
             # map_enemy[data['map_info']['players'][i]['currentPosition']['row'], data['map_info']['players'][i]['currentPosition']['col'] + 1] = 1
@@ -72,7 +72,7 @@ def process_raw_input(data) -> torch.Tensor:
     for i in range(len(data['map_info']['players'])):
         if data['map_info']['players'][i]['id'] == player_id:
             # print('found current player ' + data['map_info']['players'][i]['id'])
-            mapp[data['map_info']['players'][i]['currentPosition']['row'], data['map_info']['players'][i]['currentPosition']['col']] = 40
+            mapp[data['map_info']['players'][i]['currentPosition']['row'], data['map_info']['players'][i]['currentPosition']['col']] = 15
             # add 1 to left, right, up, down
             # map_current_player[data['map_info']['players'][i]['currentPosition']['row'], data['map_info']['players'][i]['currentPosition']['col'] - 1] = 1
             # map_current_player[data['map_info']['players'][i]['currentPosition']['row'], data['map_info']['players'][i]['currentPosition']['col'] + 1] = 1
@@ -80,7 +80,7 @@ def process_raw_input(data) -> torch.Tensor:
             # map_current_player[data['map_info']['players'][i]['currentPosition']['row'] + 1, data['map_info']['players'][i]['currentPosition']['col']] = 1
 
 
-    map_moving = torch.zeros(data['map_info']['size']['rows'], data['map_info']['size']['cols'])
+    # map_moving = torch.zeros(data['map_info']['size']['rows'], data['map_info']['size']['cols'])
     map_human = torch.zeros(data['map_info']['size']['rows'], data['map_info']['size']['cols'])
     HUMAN_VALUE = 1
     for human in data['map_info']['human']:
@@ -98,22 +98,22 @@ def process_raw_input(data) -> torch.Tensor:
                 map_human[position['row'] + 1, position['col']] = HUMAN_VALUE
     # %%
 
-    map_virus = torch.zeros(data['map_info']['size']['rows'], data['map_info']['size']['cols'])
-    VIRUS_VALUE = -1
+    # map_virus = torch.zeros(data['map_info']['size']['rows'], data['map_info']['size']['cols'])
+    VIRUS_VALUE = -40
     for virus in data['map_info']['viruses']:
         position = virus['position']
         direction = virus['direction']
-        map_moving[position['row'], position['col']] = VIRUS_VALUE
+        mapp[position['row'], position['col']] = VIRUS_VALUE
         if direction == 1:  # left
-            map_moving[position['row'], position['col'] - 1] = VIRUS_VALUE
+            mapp[position['row'], position['col'] - 1] = VIRUS_VALUE
         elif direction == 2:  # right
-            map_moving[position['row'], position['col'] + 1] = VIRUS_VALUE
+            mapp[position['row'], position['col'] + 1] = VIRUS_VALUE
         elif direction == 3:  # up
-            map_moving[position['row'] - 1, position['col']] = VIRUS_VALUE
+            mapp[position['row'] - 1, position['col']] = VIRUS_VALUE
         elif direction == 4:  # down
-            map_moving[position['row'] + 1, position['col']] = VIRUS_VALUE
+            mapp[position['row'] + 1, position['col']] = VIRUS_VALUE
 
-    map_all = torch.cat((mapp[..., None], map_spoils[..., None], map_moving[..., None]), dim=2)
+    map_all = torch.cat((mapp[..., None], map_spoils[..., None], map_human[..., None]), dim=2)
     # [14, 26, 3]
     return map_all.float()
 
