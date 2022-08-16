@@ -3,7 +3,6 @@ from threading import Thread
 import os
 import time
 import sys
-from src.run_agents import run_agents
 
 # append src, util, drl to sys.path
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -15,6 +14,7 @@ sys.path.append(parent_dir + '/util')
 sys.path.append(parent_dir + '/drl')
 print(sys.path)
 
+from src.run_agents import run_agents
 SERVER = 'https://ai.jsclub.me/'
 
 
