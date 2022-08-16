@@ -9,7 +9,7 @@ from drl.preprocessing import *
 from drl.util import *
 
 EVAL_MODE = False
-resume = False
+RESUME = True
 
 RANDOM_SEED = 420
 
@@ -21,7 +21,7 @@ EPS_DECAY = 600
 TARGET_UPDATE = 300
 
 if EVAL_MODE:
-    resume = True
+    RESUME = True
     EPS_START = 0.05
 
 screen_height = 14
@@ -32,6 +32,13 @@ n_actions = 6
 steps_done = 0
 episode_durations = []
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+MODEL_PATH = os.path.join(BASE_DIR, 'model', 'model.pth')
+
+# create model dir
+if not os.path.exists(os.path.join(BASE_DIR, 'model')):
+    os.makedirs(os.path.join(BASE_DIR, 'model'))
+
 seed_everything(RANDOM_SEED)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -41,11 +48,11 @@ target_net = DQN(screen_height, screen_width, depth, n_actions).to(device)
 target_net.load_state_dict(policy_net.state_dict())
 target_net.eval()
 
-if resume:
-    if os.path.isfile('../model/dqn.pth'):
-        print('load model')
-        policy_net.load_state_dict(torch.load('../model/dqn.pth'))
-        target_net.load_state_dict(torch.load('../model/dqn.pth'))
+if RESUME:
+    if os.path.isfile(MODEL_PATH):
+        print('load model from {}'.format(MODEL_PATH))
+        policy_net.load_state_dict(torch.load(MODEL_PATH))
+        target_net.load_state_dict(torch.load(MODEL_PATH))
     else:
         print('no model')
 
@@ -172,6 +179,6 @@ def train(env: Environment):
                     target_param.data.copy_(target_param.data * (1.0 - TAU) + policy_param.data * TAU)
 
                 # save_model
-                torch.save(policy_net.state_dict(), '../model/dqn.pth')
+                torch.save(policy_net.state_dict(), MODEL_PATH)
 
                 plot_loss(losses, confidents, t)
