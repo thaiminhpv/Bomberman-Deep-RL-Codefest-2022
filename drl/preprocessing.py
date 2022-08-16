@@ -138,8 +138,8 @@ def compute_reward(data):
     if lives_diff >= -1:
         for key, value in previous.items():
             if value != info[key]:
-                print(
-                    f"{key}: {value} -> {info[key]} : {'+' if info[key] - value > 0 else ''}{info[key] - value} : REWARD: {reward}")
+                # print(f"{key}: {value} -> {info[key]} : {'+' if info[key] - value > 0 else ''}{info[key] - value} : REWARD: {reward}")
+                print(f'{key} {"+" if info[key] - value > 0 else ""}{info[key] - value} = {reward}')
 
     previous['score'], previous['lives'], previous['pill'], previous['power'], previous['quarantine'], previous[
         'humanCured'], previous['humanSaved'] = info['score'], info['lives'], info['pill'], info['power'], info[

@@ -1,5 +1,4 @@
 # Singleton Flask app that set variable GAME_ID  listening on 5555
-import asyncio
 import time
 from threading import Thread, active_count
 import flask
@@ -31,7 +30,7 @@ def run_agents():
             player2.__del__()
 
     player1 = RandomBot('player1-xxx', verbose=False)
-    player2 = ReinforcementAI('player2-xxx', verbose=True)
+    player2 = ReinforcementAI('player2-xxx', verbose=False)
     player1.run()
     player2.run()
 
