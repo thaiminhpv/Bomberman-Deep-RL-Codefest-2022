@@ -47,8 +47,8 @@ def plot_loss(losses, confidents, time_steps: int):
     mean_confidents = np.stack(np.split(_confidents[_confidents.shape[0] % INTERVAL:], INTERVAL)).mean(axis=0)
 
     # filter out 0 values of confidents
-    mean_confidents = mean_confidents[mean_confidents > 0]
     mean_losses = mean_losses[mean_confidents > 0]
+    mean_confidents = mean_confidents[mean_confidents > 0]
 
     # add to tensorboard
     # logger.add_scalar('loss', mean_losses.mean(), time_steps)
