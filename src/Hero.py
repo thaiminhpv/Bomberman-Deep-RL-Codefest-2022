@@ -9,13 +9,14 @@ from src.server_util import server_util
 class Hero(ABC):
     MAPPING = {0: '1', 1: '2', 2: '3', 3: '4', 4: 'b', 5: 'x'}
 
-    def __init__(self, player_id, verbose=True):
+    def __init__(self, player_id, game_id, verbose=True):
         super(Hero, self).__init__()
         self.sio = socketio.Client()
         self.player_id = player_id
         self.verbose = verbose
         self.running = False
-        self.log = server_util(self.sio, self.player_id, verbose=self.verbose)
+        self.game_id = game_id
+        self.log = server_util(self.sio, self.player_id, game_id, verbose=self.verbose)
         self.log(f'{self.player_id} started')
 
         @self.sio.on('drive player')

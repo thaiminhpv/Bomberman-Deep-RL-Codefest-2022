@@ -9,8 +9,8 @@ from src.Hero import Hero
 
 class RandomBot(Hero):
 
-    def __init__(self, player_id, verbose=True):
-        super(RandomBot, self).__init__(player_id, verbose=verbose)
+    def __init__(self, player_id, game_id, verbose=True):
+        super(RandomBot, self).__init__(player_id, game_id, verbose=verbose)
 
     def on_join_game(self, data):
         pass

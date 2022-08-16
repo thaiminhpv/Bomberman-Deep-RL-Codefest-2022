@@ -1,15 +1,11 @@
-from pprint import pprint
-from .config import SERVER_URL, get_game_id
-
-
-def server_util(sio, player_id, verbose=True):
+def server_util(sio, player_id, game_id, verbose=True):
     log = print if verbose else lambda *args, **kwargs: None
 
     @sio.event
     def connect():
         log('connection established')
-        sio.emit('join game', {'game_id': get_game_id(), 'player_id': player_id})
-        log(f'{player_id} connected to game {get_game_id()}')
+        sio.emit('join game', {'game_id': game_id, 'player_id': player_id})
+        log(f'{player_id} connected to game {game_id}')
 
     @sio.event
     def disconnect():

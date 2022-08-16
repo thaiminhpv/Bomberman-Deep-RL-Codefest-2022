@@ -7,8 +7,8 @@ from drl.train import train
 
 
 class ReinforcementAI(Hero):
-    def __init__(self, player_id, verbose=True):
-        super(ReinforcementAI, self).__init__(player_id, verbose=verbose)
+    def __init__(self, player_id, game_id, verbose=True):
+        super(ReinforcementAI, self).__init__(player_id, game_id, verbose=verbose)
         self.condition = Condition()
         self.env = Environment(cv=self.condition, player_id=self.player_id, hero=self)
 
