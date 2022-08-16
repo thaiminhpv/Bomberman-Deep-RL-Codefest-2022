@@ -26,7 +26,7 @@ if EVAL_MODE:
 
 screen_height = 14
 screen_width = 26
-depth = 5
+depth = 3
 n_actions = 6
 
 steps_done = 0

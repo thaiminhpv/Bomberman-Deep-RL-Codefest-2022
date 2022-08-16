@@ -14,10 +14,10 @@ def process_raw_input(data) -> torch.Tensor:
     mapp = torch.tensor(mapp)
     # mapp[mapp == 6] = 3
     # mapp[mapp == 7] = 4
-    mapp[mapp == 1] = -3  # Wall
+    mapp[mapp == 1] = -5  # Wall
     mapp[mapp == 2] = -1  # Balk
-    mapp[mapp == 6] = -3  # Teleport Gate
-    mapp[mapp == 7] = -3  # Quarantine Place
+    mapp[mapp == 6] = -5  # Teleport Gate
+    mapp[mapp == 7] = -5  # Quarantine Place
     mapp[mapp == 0] = 2  # Road
 
     # mapp = F.one_hot(mapp)
@@ -37,32 +37,32 @@ def process_raw_input(data) -> torch.Tensor:
     # %%
     MAX_REMAINING_TIME = 2000
     bombs = data['map_info']['bombs']
-    map_bombs_power = torch.zeros(data['map_info']['size']['rows'], data['map_info']['size']['cols'])
+    # map_bombs_power = torch.zeros(data['map_info']['size']['rows'], data['map_info']['size']['cols'])
     for i in range(len(data['map_info']['players'])):
         power = data['map_info']['players'][i]['power']
         player_id = data['map_info']['players'][i]['id']
         for bomb in bombs:
             if bomb['playerId'] == player_id:
-                remainTime = (MAX_REMAINING_TIME - int(bomb['remainTime'])) / 2000
+                remainTime = ((MAX_REMAINING_TIME - int(bomb['remainTime'])) / 2000) * -30
                 # map_bombs_power[bomb['row'], bomb['col']] = remainTime
                 # print(power)
                 for p in range(power + 1):
                     _row = min(bomb['row'] + p, data['map_info']['size']['rows'] - 1)
                     _col = min(bomb['col'] + p, data['map_info']['size']['cols'] - 1)
-                    map_bombs_power[_row, bomb['col']] = remainTime
-                    map_bombs_power[bomb['row'], _col] = remainTime
+                    mapp[_row, bomb['col']] = remainTime
+                    mapp[bomb['row'], _col] = remainTime
                     _row = max(0, bomb['row'] - p)
                     _col = max(0, bomb['col'] - p)
-                    map_bombs_power[_row, bomb['col']] = remainTime
-                    map_bombs_power[bomb['row'], _col] = remainTime
+                    mapp[_row, bomb['col']] = remainTime
+                    mapp[bomb['row'], _col] = remainTime
 
     player_id = Environment.get_player_id()  # data['player_id']
-    map_player = torch.zeros(data['map_info']['size']['rows'], data['map_info']['size']['cols'])
-    map_enemy = torch.zeros(data['map_info']['size']['rows'], data['map_info']['size']['cols'])
+    # map_player = torch.zeros(data['map_info']['size']['rows'], data['map_info']['size']['cols'])
+    # map_enemy = torch.zeros(data['map_info']['size']['rows'], data['map_info']['size']['cols'])
     for i in range(len(data['map_info']['players'])):
         if data['map_info']['players'][i]['id'] != player_id:
             # print('found enemy ' + data['map_info']['players'][i]['id'])
-            map_player[data['map_info']['players'][i]['currentPosition']['row'], data['map_info']['players'][i]['currentPosition']['col']] = -1
+            mapp[data['map_info']['players'][i]['currentPosition']['row'], data['map_info']['players'][i]['currentPosition']['col']] = -40
             # add 1 to left, right, up, down
             # map_enemy[data['map_info']['players'][i]['currentPosition']['row'], data['map_info']['players'][i]['currentPosition']['col'] - 1] = 1
             # map_enemy[data['map_info']['players'][i]['currentPosition']['row'], data['map_info']['players'][i]['currentPosition']['col'] + 1] = 1
@@ -72,7 +72,7 @@ def process_raw_input(data) -> torch.Tensor:
     for i in range(len(data['map_info']['players'])):
         if data['map_info']['players'][i]['id'] == player_id:
             # print('found current player ' + data['map_info']['players'][i]['id'])
-            map_player[data['map_info']['players'][i]['currentPosition']['row'], data['map_info']['players'][i]['currentPosition']['col']] = 1
+            mapp[data['map_info']['players'][i]['currentPosition']['row'], data['map_info']['players'][i]['currentPosition']['col']] = 40
             # add 1 to left, right, up, down
             # map_current_player[data['map_info']['players'][i]['currentPosition']['row'], data['map_info']['players'][i]['currentPosition']['col'] - 1] = 1
             # map_current_player[data['map_info']['players'][i]['currentPosition']['row'], data['map_info']['players'][i]['currentPosition']['col'] + 1] = 1
@@ -113,8 +113,8 @@ def process_raw_input(data) -> torch.Tensor:
         elif direction == 4:  # down
             map_moving[position['row'] + 1, position['col']] = VIRUS_VALUE
 
-    map_all = torch.cat((mapp[..., None], map_spoils[..., None], map_bombs_power[..., None], map_player[..., None], map_moving[..., None]), dim=2)
-    # [14, 26, 5]
+    map_all = torch.cat((mapp[..., None], map_spoils[..., None], map_moving[..., None]), dim=2)
+    # [14, 26, 3]
     return map_all.float()
 
 
