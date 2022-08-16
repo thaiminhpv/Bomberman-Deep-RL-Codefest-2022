@@ -13,7 +13,6 @@ class ReinforcementAI(Hero):
         self.env = Environment(cv=self.condition, player_id=self.player_id, hero=self)
 
     def on_join_game(self, data):
-        print('7. server callback join game, go to ReinforcementAI sub-class')
         train(self.env)
 
     def on_drive_player(self, data):

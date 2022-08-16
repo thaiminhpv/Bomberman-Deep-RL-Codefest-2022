@@ -145,9 +145,7 @@ def plot_loss(losses, confidents, time_steps: int):
 
 
 def train(env: Environment):
-    print('start train')
     time.sleep(3)
-    print('start train2')
 
     action = 2
     state = process_raw_input(env.step(action)).to(device)  # [14, 26, 11]

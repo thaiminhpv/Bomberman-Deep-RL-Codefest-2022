@@ -40,7 +40,6 @@ class Environment:
         return Environment.instance.player_id
 
     def __init__(self, cv: Condition = None, hero: Hero = None, player_id: str = 'player1-xxx'):
-        print('Environment.__init__, this should be called only once')
         Environment.instance = self
         self.QUEUE = deque()
         self.player_id = player_id
@@ -49,17 +48,10 @@ class Environment:
             self.hero = hero
 
     def __del__(self):
-        print('Environment.__del__, this should be called only once')
         self.__clear()
         del self.hero
 
     def __move(self, action: int):
-        print('Environment.__move, action:', action)
-        print('Environment.__move, self.hero:', self.hero)
-        print('Environment.__move, self.hero.player_id:', self.hero.player_id)
-        print('Environment.__move, self.player_id:', self.player_id)
-        print('Environment.__move, self.condition:', self.condition)
-        print('Environment.__move, self.hero.running:', self.hero.running)
         self.hero.move(action)
 
     def __clear(self):
