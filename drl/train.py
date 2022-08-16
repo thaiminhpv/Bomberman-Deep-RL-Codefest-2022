@@ -15,7 +15,7 @@ from drl.preprocessing import process_raw_input, compute_reward
 from drl.util import seed_everything, plot_loss, log
 
 EVAL_MODE = False
-RESUME = True
+RESUME = False
 
 RANDOM_SEED = 420
 
@@ -23,10 +23,10 @@ BATCH_SIZE = 128
 GAMMA = 0.999
 EPS_START = 0.95
 EPS_END = 0.05
-EPS_DECAY = 400
-TARGET_UPDATE = 10
+EPS_DECAY = 600
+TARGET_UPDATE = 5
 TAU = 0.001
-PLOT_INTERVAL = 200
+PLOT_INTERVAL = 100
 
 if EVAL_MODE:
     RESUME = True
