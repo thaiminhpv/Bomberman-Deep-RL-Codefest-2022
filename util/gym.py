@@ -9,6 +9,8 @@ from src.random_bot import RandomBot
 
 import sys
 sys.path.append('../')
+sys.path.append('../src')
+sys.path.append('../util')
 
 player1 = None
 player2 = None
