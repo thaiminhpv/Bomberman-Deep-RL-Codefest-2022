@@ -7,6 +7,9 @@ from flask_cors import CORS, cross_origin
 from src.reinforcement_ai import ReinforcementAI
 from src.random_bot import RandomBot
 
+import sys
+sys.path.append('../')
+
 player1 = None
 player2 = None
 
