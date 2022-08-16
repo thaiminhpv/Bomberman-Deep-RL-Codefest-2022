@@ -5,13 +5,14 @@ import time
 from itertools import count
 from typing import Tuple
 
+import numpy as np
 from torch import optim
 
 from drl.DQN import *
 from drl.Environment import Environment
 from drl.ReplayMemory import ReplayMemory, Transition
 from drl.preprocessing import process_raw_input, compute_reward
-from drl.util import seed_everything, plot_loss
+from drl.util import seed_everything, plot_loss, log
 
 EVAL_MODE = False
 RESUME = True
@@ -25,6 +26,7 @@ EPS_END = 0.05
 EPS_DECAY = 600
 TARGET_UPDATE = 5
 TAU = 0.001
+PLOT_INTERVAL = 10
 
 if EVAL_MODE:
     RESUME = True
@@ -121,8 +123,11 @@ def train(env: Environment):
 
     action = 2
     state = process_raw_input(env.step(action)).to(device)  # [14, 26, 11]
+
     losses = []
     confidents = []
+    total_losses = []
+    total_confidents = []
 
     for t in count():
         # Select and perform an action
@@ -157,8 +162,23 @@ def train(env: Environment):
                 for target_param, policy_param in zip(target_net.parameters(), policy_net.parameters()):
                     target_param.data.copy_(target_param.data * (1.0 - TAU) + policy_param.data * TAU)
 
-            if t % 10 == 0:
+            if t % PLOT_INTERVAL == 0:
                 print('saving model...')
                 # save_model
                 torch.save(policy_net.state_dict(), MODEL_PATH)
-                plot_loss(losses, confidents, t)
+
+                _losses, _confidents = np.array(losses), np.array(confidents)
+                # filter out the invalid data
+                _losses = _losses[_confidents > 0.0].mean()
+                _confidents = _confidents[_confidents > 0.0].mean()
+
+                if np.isnan(_losses) or np.isnan(_confidents):
+                    continue
+                total_losses.append(_losses)
+                total_confidents.append(_confidents)
+
+                log(_losses, _confidents, t)
+                plot_loss(total_losses, total_confidents)
+
+                losses.clear()
+                confidents.clear()

@@ -36,32 +36,30 @@ def plot_durations(episode_durations):
     #     display.display(plt.gcf())
 
 
-def plot_loss(losses, confidents, time_steps: int):
-    # logger = SummaryWriter('runs/drl-bot-Codefest')
-    INTERVAL = 2
-    print('plot loss')
+def log(losses, confidents, time_steps):
+    logger = SummaryWriter('runs/drl-bot-Codefest')
 
-    _losses = np.array(losses)
-    mean_losses = np.stack(np.split(_losses[_losses.shape[0] % INTERVAL:], INTERVAL)).mean(axis=0)
-    _confidents = np.array(confidents)
-    mean_confidents = np.stack(np.split(_confidents[_confidents.shape[0] % INTERVAL:], INTERVAL)).mean(axis=0)
-
-    # filter out 0 values of confidents
-    mean_losses = mean_losses[mean_confidents > 0]
-    mean_confidents = mean_confidents[mean_confidents > 0]
+    print(f'\t\t\t\t\t| loss: {losses:.4f} - conf: {confidents:.4f}')
 
     # add to tensorboard
-    # logger.add_scalar('loss', mean_losses.mean(), time_steps)
-    # logger.add_scalar('confident', mean_confidents.mean(), time_steps)
+    logger.add_scalar('loss', losses, time_steps)
+    logger.add_scalar('confident', confidents, time_steps)
 
+    logger.close()
+
+
+def plot_loss(losses, confidents):
+    if len(losses) < 2:
+        return
+    # _losses = losses.unfold(0, 6, 1).mean(1).view(-1)
+    # _confidents = confidents.unfold(0, 6, 1).mean(1).view(-1)
     # plot loss and confidents on the same figure with different colors and their own scale
     fig, ax = plt.subplots()
-    ax.plot(mean_losses, color='red', label='loss')
+    l1, = ax.plot(losses, color='red', label='loss')
     ax.set_xlabel('time steps')
     ax.set_ylabel('loss')
     ax2 = ax.twinx()
-    ax2.plot(mean_confidents, color='blue', label='confident')
+    l2, = ax2.plot(confidents, color='blue', label='confident')
     ax2.set_ylabel('confident')
-    plt.legend()
+    plt.legend(handles=[l1, l2], loc='upper right')
     plt.show()
-    # logger.close()
