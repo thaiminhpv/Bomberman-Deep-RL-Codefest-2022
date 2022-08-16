@@ -74,9 +74,9 @@ def process_raw_input(data) -> torch.Tensor:
     map_human = torch.zeros(data['map_info']['size']['rows'], data['map_info']['size']['cols'])
     for human in data['map_info']['human']:
         position = human['position']
-        direction = human['direction']
         if human['infected']:
             map_human[position['row'], position['col']] = 1
+            direction = human.get('direction', None)
             if direction == 1:  # left
                 map_human[position['row'], position['col'] - 1] = 1
             elif direction == 2:  # right

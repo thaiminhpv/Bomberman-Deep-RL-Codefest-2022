@@ -37,7 +37,9 @@ class Environment(metaclass=Singleton):
         self.condition = cv
         self.player_id = player_id
         if move is not None:
-            self.move = move
+            def _move(action: int):
+                move(action)
+            self.move = _move
 
     def __clear(self):
         self.QUEUE.clear()

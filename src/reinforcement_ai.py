@@ -1,44 +1,24 @@
-started = False
-
 from threading import Condition
-from threading import Thread
-
-import socketio
+from time import sleep
 
 from drl.Environment import Environment
+from src.Hero import Hero
 from drl.train import train
-from src.config import SERVER_URL
-from src.server_util import server_util
-
-mapping = {0: '1', 1: '2', 2: '3', 3: '4', 4: 'b', 5: 'x'}
 
 
-def reinforcement_ai(player_id: str):
-    cv = Condition()
-    sio = socketio.Client()
+class ReinforcementAI(Hero):
+    def __init__(self, player_id, verbose=True):
+        super(ReinforcementAI, self).__init__(player_id, verbose=verbose)
+        self.condition = Condition()
+        self.env = Environment(cv=self.condition, player_id=self.player_id, move=lambda _: self.move(_))
 
-    log = server_util(sio, player_id, verbose=False)
+    def on_join_game(self, data):
+        train(self.env)
 
-    def move(step: int):
-        step = mapping[step]
-        log(f'Player = {player_id} - Dir = {step}')
-        sio.emit('drive player', {"direction": step})
+    def on_drive_player(self, data):
+        pass
 
-    env = Environment(cv=cv, move=move, player_id=player_id)
-
-    @sio.on('drive player')
-    def on_drive_player(data):
-        log(f'{player_id} drive player successfully')
-        # pprint(data)
-
-    @sio.on('ticktack player')
-    def on_ticktack_player(data):
-        global started
-        started = True
-        log(f'{player_id} received ticktack player')
-        with cv:
-            env.tick(data)
-            cv.notify()
-
-    Thread(target=train).start()
-    sio.connect(SERVER_URL)
+    def on_ticktack_player(self, data):
+        with self.condition:
+            self.env.tick(data)
+            self.condition.notify()

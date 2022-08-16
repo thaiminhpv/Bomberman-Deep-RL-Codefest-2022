@@ -19,9 +19,4 @@ def server_util(sio, player_id, verbose=True):
     def connect_error():
         log('The connection has an error')
 
-    @sio.on('join game')
-    def on_join_game(data):
-        log(f'{player_id} join game successfully')
-        pprint(data)
-
     return log

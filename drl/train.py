@@ -118,9 +118,8 @@ def optimize_model():
     optimizer.step()
 
 
-def train():
+def train(env: Environment):
     time.sleep(3)
-    env = Environment()
 
     action = 2
     state = process_raw_input(env.step(action)).to(device)  # [14, 26, 11]
