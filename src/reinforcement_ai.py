@@ -10,7 +10,7 @@ class ReinforcementAI(Hero):
     def __init__(self, player_id, verbose=True):
         super(ReinforcementAI, self).__init__(player_id, verbose=verbose)
         self.condition = Condition()
-        self.env = Environment(cv=self.condition, player_id=self.player_id, move=lambda _: self.move(_))
+        self.env = Environment(cv=self.condition, player_id=self.player_id, move=self.move)
 
     def on_join_game(self, data):
         train(self.env)
