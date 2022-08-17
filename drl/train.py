@@ -66,7 +66,7 @@ if RESUME:
     else:
         print('no model')
 
-optimizer = optim.Adam(policy_net.parameters(), lr=0.0005)
+optimizer = optim.Adam(policy_net.parameters(), lr=0.0001)
 lr_scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=90, gamma=0.5)
 memory = ReplayMemory(10000)
 criterion = nn.SmoothL1Loss()
