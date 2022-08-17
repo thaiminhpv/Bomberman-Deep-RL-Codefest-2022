@@ -112,10 +112,10 @@ def optimize_model():
     # Optimize the model
     optimizer.zero_grad()
     loss.backward()
-    lr_scheduler.step()
     for param in policy_net.parameters():
         param.grad.data.clamp_(-1, 1)
     optimizer.step()
+    lr_scheduler.step()
 
     loss = loss.detach()
     return loss, confident
