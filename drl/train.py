@@ -26,7 +26,7 @@ GAMMA = 0.999
 EPS_START = 0.95
 EPS_END = 0.05
 EPS_DECAY = 700
-TARGET_UPDATE = 170
+TARGET_UPDATE = 4
 TAU = 0.001
 PLOT_INTERVAL = 30
 
@@ -66,7 +66,8 @@ if RESUME:
     else:
         print('no model')
 
-optimizer = optim.Adam(policy_net.parameters(), lr=0.0001)
+optimizer = optim.Adam(policy_net.parameters(), lr=0.0005)
+lr_scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=90, gamma=0.5)
 memory = ReplayMemory(10000)
 criterion = nn.SmoothL1Loss()
 
@@ -111,6 +112,7 @@ def optimize_model():
     # Optimize the model
     optimizer.zero_grad()
     loss.backward()
+    lr_scheduler.step()
     for param in policy_net.parameters():
         param.grad.data.clamp_(-1, 1)
     optimizer.step()
@@ -120,6 +122,7 @@ def optimize_model():
 
 
 def recall_model():
+    time.sleep(3)
     losses = []
     confidents = []
     total_losses = []
@@ -138,10 +141,10 @@ def recall_model():
         # Update the target network, copying all weights and biases in DQN
         if t % TARGET_UPDATE == 0:
             print('update target network')
-            target_net.load_state_dict(policy_net.state_dict())
+            # target_net.load_state_dict(policy_net.state_dict())
             # perform soft update
-            # for target_param, policy_param in zip(target_net.parameters(), policy_net.parameters()):
-            #     target_param.data.copy_(target_param.data * (1.0 - TAU) + policy_param.data * TAU)
+            for target_param, policy_param in zip(target_net.parameters(), policy_net.parameters()):
+                target_param.data.copy_(target_param.data * (1.0 - TAU) + policy_param.data * TAU)
 
         if t % PLOT_INTERVAL == 0:
             print('saving model...')
