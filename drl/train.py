@@ -3,9 +3,11 @@ import os
 import random
 import time
 from itertools import count
+from threading import Thread
 from typing import Tuple
 
 import numpy as np
+import torch
 from torch import optim
 
 from drl.DQN import *
@@ -96,6 +98,7 @@ def optimize_model():
     transitions = memory.sample(BATCH_SIZE)
     batch = Transition(*zip(*transitions))
 
+    confident = torch.tensor(batch.info).to(device).mean()
     state_batch = torch.stack(batch.state).to(device)
     action_batch = torch.tensor(batch.action).to(device)
     reward_batch = torch.tensor(batch.reward).to(device)
@@ -115,19 +118,63 @@ def optimize_model():
         param.grad.data.clamp_(-1, 1)
     optimizer.step()
 
-    return loss.item()
+    return loss, confident
 
 
-def train(env: Environment):
-    time.sleep(3)
-
-    action = 2
-    state = process_raw_input(env.step(action)).to(device)  # [14, 26, 11]
-
+def recall_model():
     losses = []
     confidents = []
     total_losses = []
     total_confidents = []
+    # wait until len(memory) < BATCH_SIZE
+    while len(memory) < BATCH_SIZE:
+        print('not enough sample to recall, observing...')
+        time.sleep(3)
+    print('------------------- start training -------------------')
+    for t in count():
+        loss, confident = optimize_model()
+
+        losses.append(loss)
+        confidents.append(confident)
+
+        # Update the target network, copying all weights and biases in DQN
+        if t % TARGET_UPDATE == 0:
+            print('update target network')
+            target_net.load_state_dict(policy_net.state_dict())
+            # perform soft update
+            # for target_param, policy_param in zip(target_net.parameters(), policy_net.parameters()):
+            #     target_param.data.copy_(target_param.data * (1.0 - TAU) + policy_param.data * TAU)
+
+        if t % PLOT_INTERVAL == 0:
+            print('saving model...')
+            # save_model
+            # torch.save(policy_net.state_dict(), MODEL_PATH)
+
+            _losses, _confidents = losses, confidents
+            # filter out the invalid data
+            _losses = _losses[_confidents > 0.0].mean()
+            _confidents = _confidents[_confidents > 0.0].mean()
+
+            if torch.isnan(_losses) or torch.isnan(_confidents):
+                continue
+            total_losses.append(_losses)
+            total_confidents.append(_confidents)
+
+            log(_losses, _confidents, t)
+            plot_loss(total_losses, total_confidents)
+
+            losses.clear()
+            confidents.clear()
+
+
+def train(env: Environment):
+    time.sleep(1)
+
+    action = 2
+    state = process_raw_input(env.step(action)).to(device)  # [14, 26, 11]
+
+    if not EVAL_MODE:
+        Thread(target=recall_model).start()
 
     for t in count():
         # Select and perform an action
@@ -138,47 +185,7 @@ def train(env: Environment):
         reward = compute_reward(raw_data)
 
         # Store the transition in memory
-        memory.push(state, action, next_state, reward)
+        memory.push(state, action, next_state, reward, confident)
 
         # Move to the next state
         state = next_state
-
-        # Perform one step of the optimization (on the policy network)
-        if not EVAL_MODE:
-            if len(memory) < BATCH_SIZE:
-                print('--- not enough sample to recall, observing... ---')
-                continue
-
-            loss = optimize_model()
-
-            losses.append(loss)
-            confidents.append(confident)
-
-            # Update the target network, copying all weights and biases in DQN
-            if t % TARGET_UPDATE == 0:
-                print('update target network')
-                target_net.load_state_dict(policy_net.state_dict())
-                # perform soft update
-                # for target_param, policy_param in zip(target_net.parameters(), policy_net.parameters()):
-                #     target_param.data.copy_(target_param.data * (1.0 - TAU) + policy_param.data * TAU)
-
-            if t % PLOT_INTERVAL == 0:
-                print('saving model...')
-                # save_model
-                torch.save(policy_net.state_dict(), MODEL_PATH)
-
-                _losses, _confidents = np.array(losses), np.array(confidents)
-                # filter out the invalid data
-                _losses = _losses[_confidents > 0.0].mean()
-                _confidents = _confidents[_confidents > 0.0].mean()
-
-                if np.isnan(_losses) or np.isnan(_confidents):
-                    continue
-                total_losses.append(_losses)
-                total_confidents.append(_confidents)
-
-                log(_losses, _confidents, t)
-                plot_loss(total_losses, total_confidents)
-
-                losses.clear()
-                confidents.clear()
