@@ -6,6 +6,10 @@ from src.config import SERVER_URL
 from src.server_util import server_util
 from src.Hero import Hero
 
+SEED = 420
+
+random.seed(SEED)
+
 
 class RandomBot(Hero):
 
