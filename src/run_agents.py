@@ -33,3 +33,7 @@ def run_agents(game_id: str):
     player2 = ReinforcementAI('player2-xxx', game_id, verbose=False)
     player1.run()
     player2.run()
+
+
+if __name__ == '__main__':
+    run_agents('cee3fc76-b541-4353-8daf-f1fb4f00ca96')

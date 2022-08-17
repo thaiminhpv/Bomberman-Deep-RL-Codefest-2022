@@ -95,7 +95,7 @@ def optimize_model():
     transitions = memory.sample(BATCH_SIZE)
     batch = Transition(*zip(*transitions))
 
-    confident = torch.tensor(batch.info).to(device).mean()
+    confident = torch.tensor(batch.info).to(device)
     state_batch = torch.stack(batch.state).to(device)
     action_batch = torch.tensor(batch.action).to(device)
     reward_batch = torch.tensor(batch.reward).to(device)
@@ -133,7 +133,7 @@ def recall_model():
         loss, confident = optimize_model()
 
         losses.append(loss)
-        confidents.append(confident)
+        confidents.append(confident[confident > 0].mean())
 
         # Update the target network, copying all weights and biases in DQN
         if t % TARGET_UPDATE == 0:
@@ -148,10 +148,10 @@ def recall_model():
             # save_model
             # torch.save(policy_net.state_dict(), MODEL_PATH)
 
-            _losses, _confidents = torch.tensor(losses), torch.tensor(confidents)
+            _losses, _confidents = torch.stack(losses), torch.stack(confidents)
             # filter out the invalid data
-            _losses = _losses[_confidents > 0.0].mean()
-            _confidents = _confidents[_confidents > 0.0].mean()
+            _losses = _losses.mean()
+            _confidents = _confidents.mean()
 
             if torch.isnan(_losses) or torch.isnan(_confidents):
                 continue

@@ -23,4 +23,4 @@ class RandomBot(Hero):
 
 
 if __name__ == '__main__':
-    RandomBot('player2-xxx').run()
+    RandomBot('player2-xxx', '2f561e29-0628-4d11-8bf7-cda45a523203').run()

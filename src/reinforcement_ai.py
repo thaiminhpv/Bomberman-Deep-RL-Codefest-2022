@@ -25,3 +25,7 @@ class ReinforcementAI(Hero):
 
     def __del__(self):
         self.env.__del__()
+
+
+if __name__ == '__main__':
+    ReinforcementAI('player2-xxx', '2f561e29-0628-4d11-8bf7-cda45a523203').run()
