@@ -22,11 +22,11 @@ RESUME = True
 RANDOM_SEED = 420
 
 BATCH_SIZE = 128
-GAMMA = 0.99
+GAMMA = 0.999
 EPS_START = 0.95
 EPS_END = 0.05
-EPS_DECAY = 800
-TARGET_UPDATE = 180
+EPS_DECAY = 700
+TARGET_UPDATE = 170
 TAU = 0.001
 PLOT_INTERVAL = 30
 
@@ -37,7 +37,7 @@ if EVAL_MODE:
 screen_height = 14
 screen_width = 26
 depth = 3
-n_actions = 6
+n_actions = 5
 
 steps_done = 0
 episode_durations = []
