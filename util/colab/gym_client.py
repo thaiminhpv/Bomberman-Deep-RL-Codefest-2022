@@ -38,7 +38,7 @@ def GYM_CLIENT():
         else:
             print('game_id is empty')
 
-    sio.connect(SERVER)
+    sio.connect(SERVER, wait_timeout=10)
     sio.wait()
 
 
