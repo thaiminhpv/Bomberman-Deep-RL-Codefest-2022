@@ -17,7 +17,7 @@ from drl.preprocessing import process_raw_input, compute_reward
 from drl.util import seed_everything, plot_loss, log
 
 EVAL_MODE = False
-RESUME = True
+RESUME = False
 
 RANDOM_SEED = 420
 
@@ -146,7 +146,7 @@ def recall_model():
         if t % PLOT_INTERVAL == 0:
             print('saving model...')
             # save_model
-            torch.save(policy_net.state_dict(), MODEL_PATH)
+            # torch.save(policy_net.state_dict(), MODEL_PATH)
 
             _losses, _confidents = torch.stack(losses), torch.stack(confidents)
             # filter out the invalid data
