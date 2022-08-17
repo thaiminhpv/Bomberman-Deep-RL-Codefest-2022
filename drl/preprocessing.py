@@ -40,7 +40,7 @@ def process_raw_input(data) -> torch.Tensor:
         for bomb in bombs:
             if bomb['playerId'] == player_id:
                 # remainTime = ((MAX_REMAINING_TIME - int(bomb['remainTime'])) / 2000) * -40
-                remainTime = -40
+                remainTime = -6
                 # map_bombs_power[bomb['row'], bomb['col']] = remainTime
                 # print(power)
                 for p in range(power + 1):
@@ -59,7 +59,7 @@ def process_raw_input(data) -> torch.Tensor:
     for i in range(len(data['map_info']['players'])):
         if data['map_info']['players'][i]['id'] != player_id:
             # print('found enemy ' + data['map_info']['players'][i]['id'])
-            mapp[data['map_info']['players'][i]['currentPosition']['row'], data['map_info']['players'][i]['currentPosition']['col']] = -15
+            mapp[data['map_info']['players'][i]['currentPosition']['row'], data['map_info']['players'][i]['currentPosition']['col']] = -3
             # add 1 to left, right, up, down
             # map_enemy[data['map_info']['players'][i]['currentPosition']['row'], data['map_info']['players'][i]['currentPosition']['col'] - 1] = 1
             # map_enemy[data['map_info']['players'][i]['currentPosition']['row'], data['map_info']['players'][i]['currentPosition']['col'] + 1] = 1
@@ -70,10 +70,10 @@ def process_raw_input(data) -> torch.Tensor:
         if data['map_info']['players'][i]['id'] == player_id:
             # print('found current player ' + data['map_info']['players'][i]['id'])
             # if there was bomb on current player position, then it is -15
-            if mapp[data['map_info']['players'][i]['currentPosition']['row'], data['map_info']['players'][i]['currentPosition']['col']] == -40:
-                mapp[data['map_info']['players'][i]['currentPosition']['row'], data['map_info']['players'][i]['currentPosition']['col']] = -100
+            if mapp[data['map_info']['players'][i]['currentPosition']['row'], data['map_info']['players'][i]['currentPosition']['col']] == -6:
+                mapp[data['map_info']['players'][i]['currentPosition']['row'], data['map_info']['players'][i]['currentPosition']['col']] = -7
             else:
-                mapp[data['map_info']['players'][i]['currentPosition']['row'], data['map_info']['players'][i]['currentPosition']['col']] = 15
+                mapp[data['map_info']['players'][i]['currentPosition']['row'], data['map_info']['players'][i]['currentPosition']['col']] = 3
             # add 1 to left, right, up, down
             # map_current_player[data['map_info']['players'][i]['currentPosition']['row'], data['map_info']['players'][i]['currentPosition']['col'] - 1] = 1
             # map_current_player[data['map_info']['players'][i]['currentPosition']['row'], data['map_info']['players'][i]['currentPosition']['col'] + 1] = 1
@@ -100,7 +100,7 @@ def process_raw_input(data) -> torch.Tensor:
     # %%
 
     # map_virus = torch.zeros(data['map_info']['size']['rows'], data['map_info']['size']['cols'])
-    VIRUS_VALUE = -40
+    VIRUS_VALUE = -6
     for virus in data['map_info']['viruses']:
         position = virus['position']
         direction = virus['direction']
@@ -145,7 +145,7 @@ def compute_reward(data):
     humanSaved_diff = info['humanSaved'] - previous['humanSaved']
 
     # compute reward
-    reward = score_diff * 3 + lives_diff * 100 + pill_diff + power_diff * 15 + quarantine_diff * -40 + humanCured_diff * 3 + humanSaved_diff * 3 - 0.5
+    reward = score_diff * 3 + lives_diff * 100 + pill_diff + power_diff * 15 + quarantine_diff * -40 + humanCured_diff * 3 + humanSaved_diff * 3 + 1
 
     # print different if != 0
     if lives_diff >= -1:
