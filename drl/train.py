@@ -19,12 +19,12 @@ RESUME = False
 
 RANDOM_SEED = 420
 
-BATCH_SIZE = 256
-GAMMA = 0.999
+BATCH_SIZE = 128
+GAMMA = 0.99
 EPS_START = 0.95
 EPS_END = 0.05
 EPS_DECAY = 700
-TARGET_UPDATE = 5
+TARGET_UPDATE = 100
 TAU = 0.001
 PLOT_INTERVAL = 100
 
@@ -156,11 +156,11 @@ def train(env: Environment):
 
             # Update the target network, copying all weights and biases in DQN
             if t % TARGET_UPDATE == 0:
-                # print('update target network')
-                # target_net.load_state_dict(policy_net.state_dict())
+                print('update target network')
+                target_net.load_state_dict(policy_net.state_dict())
                 # perform soft update
-                for target_param, policy_param in zip(target_net.parameters(), policy_net.parameters()):
-                    target_param.data.copy_(target_param.data * (1.0 - TAU) + policy_param.data * TAU)
+                # for target_param, policy_param in zip(target_net.parameters(), policy_net.parameters()):
+                #     target_param.data.copy_(target_param.data * (1.0 - TAU) + policy_param.data * TAU)
 
             if t % PLOT_INTERVAL == 0:
                 print('saving model...')
