@@ -170,6 +170,8 @@ def compute_reward(data, mapp_all, taken_action):
             invalid_move = 1
         elif mapp_all[next_position[0], next_position[1], 0] == 2:
             invalid_move = -1
+        else:
+            invalid_move = 0
     else:
         invalid_move = 0
 
