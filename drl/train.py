@@ -182,7 +182,7 @@ def train(env: Environment):
         action = _[0].item()
         raw_data = env.step(action)
         next_state = process_raw_input(raw_data).to(device)  # [14, 26, 11]
-        reward = compute_reward(raw_data)
+        reward = compute_reward(raw_data, action)
 
         # Store the transition in memory
         memory.push(state, action, next_state, reward, confident)

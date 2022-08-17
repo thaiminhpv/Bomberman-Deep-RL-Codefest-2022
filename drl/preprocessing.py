@@ -119,18 +119,26 @@ def process_raw_input(data) -> torch.Tensor:
     return map_all.float()
 
 
-previous = {}
-previous['score'], previous['lives'], previous['pill'], previous['power'], previous['quarantine'], previous[
-    'humanCured'], previous['humanSaved'] = 0, 1000, 0, 1, 0, 0, 0
+previous = dict(
+    score=0,
+    lives=1000,
+    pill=0,
+    power=1,
+    quarantine=0,
+    humanCured=0,
+    humanSaved=0,
+    position=(0, 0)
+)
 
 
-def compute_reward(data):
+def compute_reward(data, taken_action):
     info = None
     player_id = Environment.get_player_id()
     for i in range(len(data['map_info']['players'])):
         if data['map_info']['players'][i]['id'] == player_id:
             player_id = data['map_info']['players'][i]['id']
             info = data['map_info']['players'][i]
+            info['position'] = data['map_info']['players'][i]['currentPosition']['row'], data['map_info']['players'][i]['currentPosition']['col']
             break
     else:
         raise Exception('player_id not found')
@@ -143,9 +151,13 @@ def compute_reward(data):
     quarantine_diff = info['quarantine'] - previous['quarantine']
     humanCured_diff = info['humanCured'] - previous['humanCured']
     humanSaved_diff = info['humanSaved'] - previous['humanSaved']
+    if previous['position'] == info['position'] and taken_action in [0, 1, 2, 3]:
+        invalid_move = 1
+    else:
+        invalid_move = 0
 
     # compute reward
-    reward = score_diff * 3 + lives_diff * 100 + pill_diff + power_diff * 15 + quarantine_diff * -40 + humanCured_diff * 3 + humanSaved_diff * 3 + 1
+    reward = score_diff * 3 + lives_diff * 100 + pill_diff + power_diff * 15 + quarantine_diff * -40 + humanCured_diff * 3 + humanSaved_diff * 3 + invalid_move * -10 + 1
 
     # print different if != 0
     if lives_diff >= -1:
