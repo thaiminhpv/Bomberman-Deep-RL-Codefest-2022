@@ -157,10 +157,12 @@ def recall_model():
 
             if torch.isnan(_losses) or torch.isnan(_confidents):
                 continue
-            total_losses.append(_losses)
-            total_confidents.append(_confidents)
+            _loss = _losses.item()
+            _confident = _confidents.item()
+            total_losses.append(_loss)
+            total_confidents.append(_confident)
 
-            log(_losses, _confidents, t)
+            log(_loss, _confident, t)
             plot_loss(total_losses, total_confidents)
 
             losses.clear()
