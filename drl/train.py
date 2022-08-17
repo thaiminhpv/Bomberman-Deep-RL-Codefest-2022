@@ -37,7 +37,7 @@ if EVAL_MODE:
 screen_height = 14
 screen_width = 26
 depth = 3
-n_actions = 5
+n_actions = 4
 
 steps_done = 0
 episode_durations = []

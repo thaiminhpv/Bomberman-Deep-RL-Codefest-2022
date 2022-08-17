@@ -1,3 +1,4 @@
+from src.do_nothing_bot import NothingBot
 from src.reinforcement_ai import ReinforcementAI
 from src.random_bot import RandomBot
 import time
@@ -29,7 +30,8 @@ def run_agents(game_id: str):
 
     time.sleep(1)
 
-    player1 = RandomBot('player1-xxx', game_id, verbose=False)
+    # player1 = RandomBot('player1-xxx', game_id, verbose=False)
+    player1 = NothingBot('player1-xxx', game_id, verbose=False)
     player2 = ReinforcementAI('player2-xxx', game_id, verbose=False)
     player1.run()
     player2.run()
