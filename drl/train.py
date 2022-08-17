@@ -118,7 +118,7 @@ def optimize_model():
         param.grad.data.clamp_(-1, 1)
     optimizer.step()
 
-    return loss, confident
+    return loss.detach(), confident
 
 
 def recall_model():
