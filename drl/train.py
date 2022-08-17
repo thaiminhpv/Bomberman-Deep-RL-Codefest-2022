@@ -150,7 +150,7 @@ def recall_model():
             # save_model
             # torch.save(policy_net.state_dict(), MODEL_PATH)
 
-            _losses, _confidents = losses, confidents
+            _losses, _confidents = torch.tensor(losses), torch.tensor(confidents)
             # filter out the invalid data
             _losses = _losses[_confidents > 0.0].mean()
             _confidents = _confidents[_confidents > 0.0].mean()
