@@ -17,7 +17,7 @@ from drl.preprocessing import process_raw_input, compute_reward
 from drl.util import seed_everything, plot_loss, log
 
 EVAL_MODE = False
-RESUME = True
+RESUME = False
 
 RANDOM_SEED = 420
 
