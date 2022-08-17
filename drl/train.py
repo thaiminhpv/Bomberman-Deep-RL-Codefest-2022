@@ -80,7 +80,7 @@ def select_action(state) -> Tuple[torch.Tensor, float]:
     steps_done += 1
     if sample > eps_threshold:
         with torch.no_grad():
-            policy_net.eval()
+            # policy_net.eval()
             # t.max(1) will return largest column value of each row.
             # second column on max result is index of where max element was
             # found, so we pick action with the larger expected reward
@@ -94,7 +94,6 @@ def select_action(state) -> Tuple[torch.Tensor, float]:
 
 
 def optimize_model():
-    policy_net.train()
     transitions = memory.sample(BATCH_SIZE)
     batch = Transition(*zip(*transitions))
 
@@ -108,6 +107,7 @@ def optimize_model():
     # Compute the expected Q values
     y_targets = reward_batch + (max_qsa * GAMMA)  # missing terminal state
 
+    policy_net.train()
     q_values = policy_net(state_batch).gather(1, action_batch[:, None])
     loss = criterion(q_values, y_targets[:, None])
 
@@ -118,7 +118,9 @@ def optimize_model():
         param.grad.data.clamp_(-1, 1)
     optimizer.step()
 
-    return loss.detach(), confident
+    loss = loss.detach()
+    policy_net.eval()
+    return loss, confident
 
 
 def recall_model():
