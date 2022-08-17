@@ -167,6 +167,9 @@ def recall_model():
             confidents.clear()
 
 
+training_thread = Thread(target=recall_model)
+
+
 def train(env: Environment):
     time.sleep(1)
 
@@ -174,7 +177,8 @@ def train(env: Environment):
     state = process_raw_input(env.step(action)).to(device)  # [14, 26, 11]
 
     if not EVAL_MODE:
-        Thread(target=recall_model).start()
+        if not training_thread.is_alive():
+            training_thread.start()
 
     for t in count():
         # Select and perform an action
