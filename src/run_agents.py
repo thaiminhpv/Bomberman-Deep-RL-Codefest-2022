@@ -36,4 +36,5 @@ def run_agents(game_id: str):
 
 
 if __name__ == '__main__':
-    run_agents('cee3fc76-b541-4353-8daf-f1fb4f00ca96')
+    run_agents('b27f6e6d-20e8-42b8-ae23-f00fb75e2c34')
+

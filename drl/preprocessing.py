@@ -5,6 +5,7 @@ import torch
 from drl.Environment import Environment
 
 
+mapping = {0: '←', 1: '→', 2: '↑', 3: '↓', 4: 'bomb', 5: 'stop'}
 def process_raw_input(data) -> torch.Tensor:
     mapp = data['map_info']['map']
     mapp = torch.tensor(mapp)
@@ -131,7 +132,7 @@ previous = dict(
 )
 
 
-def compute_reward(data, taken_action):
+def compute_reward(data, mapp_all, taken_action):
     info = None
     player_id = Environment.get_player_id()
     for i in range(len(data['map_info']['players'])):
@@ -151,8 +152,24 @@ def compute_reward(data, taken_action):
     quarantine_diff = info['quarantine'] - previous['quarantine']
     humanCured_diff = info['humanCured'] - previous['humanCured']
     humanSaved_diff = info['humanSaved'] - previous['humanSaved']
-    if previous['position'] == info['position'] and taken_action in [0, 1, 2, 3]:
-        invalid_move = 1
+    # if previous['position'] == info['position'] and taken_action in [0, 1, 2, 3]:
+    #     invalid_move = 1
+    # else:
+    #     invalid_move = 0
+    next_position = None
+    if taken_action in [0, 1, 2, 3]:
+        if taken_action == 0:
+            next_position = (info['position'][0], info['position'][1] - 1)
+        elif taken_action == 1:
+            next_position = (info['position'][0], info['position'][1] + 1)
+        elif taken_action == 2:
+            next_position = (info['position'][0] - 1, info['position'][1])
+        elif taken_action == 3:
+            next_position = (info['position'][0] + 1, info['position'][1])
+        if mapp_all[next_position[0], next_position[1], 0] < 0:
+            invalid_move = 1
+        elif mapp_all[next_position[0], next_position[1], 0] == 2:
+            invalid_move = -1
     else:
         invalid_move = 0
 
@@ -162,13 +179,13 @@ def compute_reward(data, taken_action):
     # print different if != 0
     if lives_diff >= -1:
         for key, value in previous.items():
-            if value != info[key]:
+            if value != info[key] and key != 'position':
                 # print(f"{key}: {value} -> {info[key]} : {'+' if info[key] - value > 0 else ''}{info[key] - value} : REWARD: {reward}")
                 print(f'{key} {"+" if info[key] - value > 0 else ""}{info[key] - value} = {reward}')
+            elif invalid_move == 1 and key == 'position':
+                print(f'{mapping[taken_action]} at {info[key]} = {reward}')
 
-    previous['score'], previous['lives'], previous['pill'], previous['power'], previous['quarantine'], previous[
-        'humanCured'], previous['humanSaved'] = info['score'], info['lives'], info['pill'], info['power'], info[
-        'quarantine'], info['humanCured'], info['humanSaved']
+    previous['score'], previous['lives'], previous['pill'], previous['power'], previous['quarantine'], previous['humanCured'], previous['humanSaved'], previous['position'] = info['score'], info['lives'], info['pill'], info['power'], info['quarantine'], info['humanCured'], info['humanSaved'], info['position']
 
     if quarantine_diff == 1:
         print(f"Got to quarantine")
