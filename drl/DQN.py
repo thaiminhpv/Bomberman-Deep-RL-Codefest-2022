@@ -10,7 +10,7 @@ class DQN(nn.Module):
         super(DQN, self).__init__()
         self.upsampler = nn.UpsamplingBilinear2d(size=(h * 8, w * 8))
         self.input_norm = nn.BatchNorm2d(c)
-        self.body = timm.create_model('mobilenetv3_large_100', pretrained=True)
+        self.body = timm.create_model('efficientnet_b0', num_classes=outputs, pretrained=True)
         # change input channels from RGB to C
         self.body.conv_stem.weight = nn.Parameter(self.body.conv_stem.weight.mean(dim=1, keepdim=True).repeat(1, c, 1, 1))
         # retrain last layer
