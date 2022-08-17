@@ -159,13 +159,13 @@ def compute_reward(data, mapp_all, taken_action):
     next_position = None
     if taken_action in [0, 1, 2, 3]:
         if taken_action == 0:
-            next_position = (info['position'][0], info['position'][1] - 1)
+            next_position = (previous['position'][0], previous['position'][1] - 1)
         elif taken_action == 1:
-            next_position = (info['position'][0], info['position'][1] + 1)
+            next_position = (previous['position'][0], previous['position'][1] + 1)
         elif taken_action == 2:
-            next_position = (info['position'][0] - 1, info['position'][1])
+            next_position = (previous['position'][0] - 1, previous['position'][1])
         elif taken_action == 3:
-            next_position = (info['position'][0] + 1, info['position'][1])
+            next_position = (previous['position'][0] + 1, previous['position'][1])
         if mapp_all[next_position[0], next_position[1], 0] < 0:
             invalid_move = 1
         elif mapp_all[next_position[0], next_position[1], 0] == 2:
@@ -185,7 +185,7 @@ def compute_reward(data, mapp_all, taken_action):
                 # print(f"{key}: {value} -> {info[key]} : {'+' if info[key] - value > 0 else ''}{info[key] - value} : REWARD: {reward}")
                 print(f'{key} {"+" if info[key] - value > 0 else ""}{info[key] - value} = {reward}')
             elif invalid_move == 1 and key == 'position':
-                print(f'{mapping[taken_action]} at {info[key]} = {reward}')
+                print(f'{mapping[taken_action]} at {previous[key]} = {reward}')
 
     previous['score'], previous['lives'], previous['pill'], previous['power'], previous['quarantine'], previous['humanCured'], previous['humanSaved'], previous['position'] = info['score'], info['lives'], info['pill'], info['power'], info['quarantine'], info['humanCured'], info['humanSaved'], info['position']
 
