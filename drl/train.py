@@ -80,11 +80,9 @@ def select_action(state) -> Tuple[torch.Tensor, float]:
     steps_done += 1
     if sample > eps_threshold:
         with torch.no_grad():
-            # policy_net.eval()
-            # t.max(1) will return largest column value of each row.
-            # second column on max result is index of where max element was
-            # found, so we pick action with the larger expected reward
+            policy_net.eval()
             temp = policy_net(state[None, ...])
+            policy_net.train()
             confident = F.softmax(temp, dim=1).max(1).values.detach().item()
             print(f'{mapping[temp.argmax().item()]} : {confident * 100:.3f}%')
             return temp.argmax().view(1, 1), confident
@@ -107,7 +105,6 @@ def optimize_model():
     # Compute the expected Q values
     y_targets = reward_batch + (max_qsa * GAMMA)  # missing terminal state
 
-    policy_net.train()
     q_values = policy_net(state_batch).gather(1, action_batch[:, None])
     loss = criterion(q_values, y_targets[:, None])
 
@@ -119,7 +116,6 @@ def optimize_model():
     optimizer.step()
 
     loss = loss.detach()
-    policy_net.eval()
     return loss, confident
 
 
