@@ -33,7 +33,7 @@ def GYM():
             if game_id is not None and game_id != "" and game_id.strip() != "":
                 print('game_id: ', game_id)
                 app.config['GAME_ID'] = game_id
-                # Thread(target=run_agents, args=(game_id,)).start()
+                Thread(target=run_agents, args=(game_id,)).start()
                 return "Game id set to {}".format(game_id)
             else:
                 # print total number of threads
