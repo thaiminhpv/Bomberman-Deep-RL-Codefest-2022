@@ -1,7 +1,20 @@
-from src.do_nothing_bot import NothingBot
-from src.reinforcement_ai import ReinforcementAI
-from src.random_bot import RandomBot
+import os
 import time
+import sys
+
+# append src, util, drl to sys.path
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+# parent_dir = os.path.dirname(parent_dir)
+sys.path.append(parent_dir)
+sys.path.append(parent_dir + '/src')
+sys.path.append(parent_dir + '/util')
+sys.path.append(parent_dir + '/drl')
+print(sys.path)
+
+from src.random_bot import RandomBot
+from src.do_nothing_bot import NothingBot
+# from src.reinforcement_ai import ReinforcementAI
 
 player1 = None
 player2 = None
@@ -31,12 +44,16 @@ def run_agents(game_id: str):
     time.sleep(1)
 
     # player1 = RandomBot('player1-xxx', game_id, verbose=False)
-    player1 = NothingBot('player1-xxx', game_id, verbose=False)
-    player2 = ReinforcementAI('player2-xxx', game_id, verbose=False)
-    player1.run()
+    # player1 = RandomBot('player1-xxx', game_id, verbose=False)
+    # player2 = RandomBot('player1-xxx', game_id, verbose=False)
+    # player1 = RandomBot('player1-xxx', game_id, verbose=False)
+    player2 = RandomBot('player2-xxx', game_id, verbose=False)
+    # player2 = NothingBot('01351af5-4873-4044-aeee-97a1553e408c', game_id, verbose=False)
+    # player1.run()
     player2.run()
 
 
 if __name__ == '__main__':
-    run_agents('b27f6e6d-20e8-42b8-ae23-f00fb75e2c34')
+    # run_agents('969bb2a8-c32d-4ee5-a0b6-77d9b2d6c04a')
+    run_agents('288e882c-c102-4585-a185-06227abb50ff')
 
