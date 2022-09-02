@@ -16,6 +16,7 @@ print(sys.path)
 
 from src.random_bot import RandomBot
 from src.do_nothing_bot import NothingBot
+from src.reinforcement_ai import ReinforcementAI
 
 player1 = None
 player2 = None
